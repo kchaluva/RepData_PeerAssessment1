@@ -1,6 +1,6 @@
 # Reproducible Research: Peer Assessment 1
 
-##Load required libraries
+## Load required libraries
 
 ```r
 library(ggplot2)
