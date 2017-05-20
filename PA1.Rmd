@@ -1,0 +1,106 @@
+---
+title: "Reproducible Research: Peer Assessment 1"
+output: 
+  html_document:
+    keep_md: true
+---
+
+##Load required libraries
+```{r echo=TRUE}
+library(ggplot2)
+```
+
+## Loading and preprocessing of the data
+##### 1. Load the data (i.e. read.csv())
+```{r echo=TRUE, results='asis'}
+if(!file.exists("activity.csv"))
+  unzip("repdata_data_activity.zip")
+
+activity<-read.csv("activity.csv")
+```
+##### 2. Process/transform the data (if necessary) into a format suitable for your analysis
+```{r echo=TRUE, results='asis'}
+activity$date<-as.Date(activity$date)
+```
+
+## What is mean total number of steps taken per day?
+```{r echo=TRUE, results='asis'}
+totalsteps<-tapply(activity$steps,activity$date,sum,na.rm=TRUE)
+```
+##### 1. Make a histogram of the total number of steps taken each day
+```{r echo=TRUE, results='asis'}
+hist(totalsteps, 
+     breaks = 50,
+     main = "Histogram of steps taken each day",
+     xlab = 'Total Number of Steps',
+     col = 'blue')
+```
+
+##### 2. Calculate and report the mean and median total number of steps taken per day
+```{r echo=TRUE, results='asis'}
+meansteps<-mean(totalsteps,na.rm=TRUE)
+mediansteps<-median(totalsteps,na.rm=TRUE)
+```
+
+* Mean steps taken per day `r meansteps`
+* Median steps taken per day `r mediansteps`
+
+## What is the average daily activity pattern?
+```{r echo = TRUE, results='asis'}
+avgsteps<-aggregate(x= list(meansteps = activity$steps), by=list(interval = activity$interval),FUN=mean,na.rm=TRUE)
+```
+##### 1. Make a time series plot
+```{r echo = TRUE, results='asis'}
+ggplot(avgsteps,aes(interval,meansteps))+geom_line()+xlab("time interval in 5 mins increments")+ylab("avg number of steps taken")
+```
+
+##### 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
+
+```{r echo=TRUE, results='asis'}
+maxstepsint<-avgsteps[which.max(avgsteps$meansteps),"interval"]
+```
+* Max steps related interval `r maxstepsint`
+
+## Imputing missing values
+##### 1. Calculate and report the total number of missing values in the dataset 
+```{r echo=TRUE, results='asis'}
+missingvalues<-sum(is.na(activity))
+
+```
+* Total Number of Missing Values `r missingvalues`
+
+##### 2. Create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+```{r echo=TRUE, results='asis'}
+activityDataImputed<-activity
+```
+##### 3. Devise a strategy for filling in all of the missing values in the dataset.
+```{r echo=TRUE, results='asis'}
+activityDataImputed$steps[which(is.na(activityDataImputed$steps))]<-tapply(activityDataImputed$steps,activityDataImputed$interval,mean,na.rm=TRUE,simplify = FALSE)
+activityDataImputed$steps <- as.vector(activityDataImputed$steps, mode="numeric")
+```
+##### 4. Make a histogram of the total number of steps taken each day 
+```{r echo=TRUE, results='asis'}
+totalstepsImputed<-tapply(activityDataImputed$steps,activityDataImputed$date,sum,na.rm=TRUE)
+hist(totalstepsImputed, 
+     breaks = 50,
+     main = "Histogram of steps taken each day",
+     xlab = 'Total Number of Steps',
+     col = 'blue')
+```
+
+## Are there differences in activity patterns between weekdays and weekends?
+##### . Identify the weekday and weekend data
+```{r echo=TRUE, results='asis'}
+activityDataImputed$dataType<-ifelse(as.POSIXlt(activityDataImputed$date)$wday %in% c(0,6),'Weekend','Weekday')
+avgActivityDataImputed<-aggregate(activityDataImputed$steps, by=list(activityDataImputed$interval,activityDataImputed$dataType),mean)
+names(avgActivityDataImputed)<-c("interval","dataType","steps")
+```
+##### . Plot the data
+
+```{r echo=TRUE, results='asis'}
+ggplot(avgActivityDataImputed, aes(interval, steps,color=dataType) ) + 
+  geom_line() + theme_bw()+
+    xlab("5-minute interval") + 
+  ylab("avarage number of steps")
+```
