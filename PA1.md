@@ -2,12 +2,14 @@
 
 ## Load required libraries
 
+
 ```r
 library(ggplot2)
 ```
 
 ## Loading and preprocessing of the data
 ##### 1. Load the data (i.e. read.csv())
+
 
 ```r
 if(!file.exists("activity.csv"))
@@ -17,15 +19,18 @@ activity<-read.csv("activity.csv")
 ```
 ##### 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
+
 ```r
 activity$date<-as.Date(activity$date)
 ```
 
 ## What is mean total number of steps taken per day?
 
+
 ```r
 totalsteps<-tapply(activity$steps,activity$date,sum,na.rm=TRUE)
 ```
+
 ##### 1. Make a histogram of the total number of steps taken each day
 
 ```r
