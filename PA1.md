@@ -117,7 +117,8 @@ names(avgActivityDataImputed)<-c("interval","dataType","steps")
 ggplot(avgActivityDataImputed, aes(interval, steps,color=dataType) ) + 
   geom_line() + theme_bw()+
     xlab("5-minute interval") + 
-  ylab("avarage number of steps")
+  ylab("avarage number of steps")+
+    facet_grid(dataType ~ .) 
 ```
 
 ![](PA1_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
